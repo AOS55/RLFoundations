@@ -1,0 +1,10 @@
+gymnasium
+stable-baselines3
+imitation
+mujoco
+gymnasium-robotics
+hydra-core
+omegaconf
+wandb  # optional, for logging
+minari
+shimmy

@@ -1,0 +1,11 @@
+seed: 42
+num_envs: 1 # Number of parallel environments
+
+checkpoint:
+  save_freq: 10000
+  save_path: ${hydra:runtime.cwd}/models/${algo}
+
+evaluation:
+  freq: 5000
+  n_episodes: 10
+  deterministic: true

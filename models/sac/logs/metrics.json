@@ -1,0 +1,50 @@
+[
+  {
+    "timestep": 10000,
+    "mean_reward": -50.0,
+    "std_reward": 0.0,
+    "mean_episode_length": 50.0,
+    "success_rate": 0.0,
+    "video_recorded": false
+  },
+  {
+    "timestep": 20000,
+    "mean_reward": -50.0,
+    "std_reward": 0.0,
+    "mean_episode_length": 50.0,
+    "success_rate": 0.0,
+    "video_recorded": false
+  },
+  {
+    "timestep": 10000,
+    "mean_reward": -50.0,
+    "std_reward": 0.0,
+    "mean_episode_length": 50.0,
+    "success_rate": 0.0,
+    "video_recorded": false
+  },
+  {
+    "timestep": 20000,
+    "mean_reward": -50.0,
+    "std_reward": 0.0,
+    "mean_episode_length": 50.0,
+    "success_rate": 0.0,
+    "video_recorded": false
+  },
+  {
+    "timestep": 30000,
+    "mean_reward": -50.0,
+    "std_reward": 0.0,
+    "mean_episode_length": 50.0,
+    "success_rate": 0.0,
+    "video_recorded": false
+  },
+  {
+    "timestep": 40000,
+    "mean_reward": -50.0,
+    "std_reward": 0.0,
+    "mean_episode_length": 50.0,
+    "success_rate": 0.0,
+    "video_recorded": false
+  }
+]

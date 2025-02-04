@@ -1,0 +1,27 @@
+_target_: imitation.algorithms.gail.GAIL
+algo: gail
+type: il
+
+policy_kwargs:
+  net_arch: [256, 256]
+vf_kwargs:
+  net_arch: [256, 256]
+discriminator_kwargs:
+  net_arch: [256, 256]
+  learning_rate: 3e-4
+
+gen_algo: sac
+gen_batch_size: 2048
+n_disc_updates_per_round: 4
+demonstration_path: ${hydra:runtime.cwd}/demonstrations/latest
+rng_seed: ${seed}
+
+ppo_kwargs: # Only used if gen_algo is ppo
+  learning_rate: 3e-4
+  n_steps: 2048
+  batch_size: 64
+  n_epochs: 10
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.0

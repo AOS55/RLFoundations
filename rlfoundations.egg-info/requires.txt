@@ -1,0 +1,17 @@
+gymnasium
+stable-baselines3
+imitation
+mujoco
+gymnasium-robotics
+hydra-core
+omegaconf
+wandb
+minari
+shimmy
+moviepy
+
+[dev]
+pytest
+black
+isort
+flake8

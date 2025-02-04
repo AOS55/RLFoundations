@@ -1,0 +1,9 @@
+type: "il"
+algo: "bc"
+params:
+  learning_rate: 1e-3
+  policy_kwargs:
+    net_arch: [256, 256]
+batch_size: 32
+n_epochs: 100
+dataset_name: "fetch_pick_place_human_latest"
