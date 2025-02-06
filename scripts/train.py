@@ -113,19 +113,19 @@ def train(cfg: DictConfig):
 
         # Check if HER is enabled
         if cfg.her.enabled:
+            
+            env = DummyVecEnv([lambda env_name=cfg.env.name: gym.make(env_name) for _ in range(cfg.experiment.num_envs)])
             model = SAC(
                 policy="MultiInputPolicy",
                 env=env,
-                replay_buffer_class=HerReplayBuffer,  # Explicitly setting HER Replay Buffer
+                replay_buffer_class=HerReplayBuffer,
                 replay_buffer_kwargs={
                     "n_sampled_goal": cfg.her.n_sampled_goal,
                     "goal_selection_strategy": cfg.her.goal_selection_strategy,
                 },
                 verbose=1 if cfg.logging.wandb else 0,
-            )
-
-            env = gym.make(cfg.env.name)
-            assert hasattr(env.unwrapped, "compute_reward"), "HER requires the environment to have `compute_reward()`!"
+            ) 
+            assert hasattr(env.envs[0].unwrapped, "compute_reward"), "HER requires the environment to have `compute_reward()`!"
 
         else:
             model = SAC(
