@@ -7,7 +7,7 @@ setup(
     install_requires=[
         "gymnasium",
         "stable-baselines3",
-        "imitation",
+        "imitation @ git@github.com:AOS55/imitation.git",
         "mujoco",
         "gymnasium-robotics",
         "hydra-core",
