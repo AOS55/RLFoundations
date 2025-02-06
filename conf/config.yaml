@@ -16,7 +16,7 @@ her:
   goal_selection_strategy: "future"
 
 env:
-  name: FetchReachDense-v3
+  name: FetchReachDense-v4
   max_episode_steps: 100
 
 training:

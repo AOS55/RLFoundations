@@ -1,5 +1,6 @@
 import hydra
 import wandb
+from wandb.integration.sb3 import WandbCallback
 from omegaconf import DictConfig, OmegaConf
 import gymnasium_robotics
 import gymnasium as gym
@@ -31,7 +32,6 @@ def train(cfg: DictConfig):
 
         def _init():
             env = gym.make(env_name, render_mode="rgb_array")
-            # Wrap with video recording right away
             env = RecordVideo(
                 env,
                 video_folder=str(Path(cfg.logging.output.video_dir)),
@@ -145,11 +145,16 @@ def train(cfg: DictConfig):
             save_freq=cfg.logging.checkpoint.save_freq,
             save_replay_buffer=cfg.logging.checkpoint.save_replay_buffer
         )
+        
+        wandb_callback = WandbCallback(
+            model_save_path=str(Path(cfg.logging.checkpoint.save_path)),
+            verbose=2,
+        )
 
         # Train the agent
         model.learn(
             total_timesteps=cfg.training.total_timesteps,
-            callback=eval_callback
+            callback=[wandb_callback, eval_callback] if cfg.logging.wandb.enabled else eval_callback
         )
 
         # Save the final model
