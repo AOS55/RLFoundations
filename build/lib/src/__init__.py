@@ -1,3 +1,3 @@
-from src.common.callbacks import FetchRecordCallback
+from src.common.callbacks import EnhancedEvalCallback, SimpleEvalCallback
 
-__all__ = ["FetchRecordCallback"]
+__all__ = ["FetchRecordCallback", "SimpleEvalCallback"]

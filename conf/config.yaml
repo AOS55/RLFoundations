@@ -2,6 +2,7 @@
 defaults:
   - agent: drl/sac # default agent
   - experiment: train
+  - logging: default
   - _self_
 
 # Agent configuration
@@ -11,24 +12,19 @@ algo: sac
 # HER configuration
 her:
   enabled: true # Set to true to enable HER
-  n_sampled_goal: 4
+  n_sampled_goal: 32
   goal_selection_strategy: "future"
 
 env:
-  name: FetchPickAndPlace-v3
-  max_episode_steps: 50
+  name: FetchReachDense-v3
+  max_episode_steps: 100
 
 training:
-  total_timesteps: 1000000
+  total_timesteps: 5000000
   eval_freq: 10000
   n_eval_episodes: 10
 
 evaluation:
   deterministic: true
-  record_freq: 5000
-  videos_per_eval: 3
+  record_freq: 10 # Record every 10 episodes
   save_metrics: true
-
-logging:
-  log_interval: 1000
-  wandb: false

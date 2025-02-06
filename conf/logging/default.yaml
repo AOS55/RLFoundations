@@ -1,0 +1,18 @@
+wandb:
+  enabled: true
+  project: "RLFoundations"
+  entity: null # Set your username when enabling
+  group: ${algo}
+  name: "${env.name}_${algo}_${now:%Y-%m-%d_%H-%M-%S}"
+  tags: ["${env.name}", "${type}"]
+
+checkpoint:
+  save_freq: 50000
+  save_path: ${hydra:runtime.cwd}/models/${now:%Y-%m-%d}/${algo}_${now:%H-%M-%S}
+  save_replay_buffer: true
+
+output:
+  log_interval: 1000
+  eval_dir: ${hydra:runtime.output_dir}/eval
+  metrics_dir: ${hydra:runtime.output_dir}/metrics
+  video_dir: ${hydra:runtime.output_dir}/videos

@@ -1,0 +1,350 @@
+/Users/base_camp/Developer/Robotics/RLFoundations/scripts/train.py:23: UserWarning: 
+The version_base parameter is not specified.
+Please specify a compatability version level, or None.
+Will assume defaults for version 1.1
+  @hydra.main(config_path="../conf", config_name="config")
+/opt/homebrew/Caskroom/miniconda/base/envs/robotics-env/lib/python3.10/site-packages/hydra/_internal/hydra.py:119: UserWarning: Future Hydra versions will no longer change working directory at job runtime by default.
+See https://hydra.cc/docs/1.2/upgrades/1.1_to_1.2/changes_to_job_working_dir/ for more information.
+  ret = run_job(
+/opt/homebrew/Caskroom/miniconda/base/envs/robotics-env/lib/python3.10/site-packages/gymnasium/wrappers/rendering.py:283: UserWarning: [33mWARN: Overwriting existing videos at /Users/base_camp/Developer/Robotics/RLFoundations/models/sac/videos folder (try specifying a different `video_folder` for the `RecordVideo` wrapper if this is not desired)[0m
+  logger.warn(
+/opt/homebrew/Caskroom/miniconda/base/envs/robotics-env/lib/python3.10/site-packages/stable_baselines3/common/evaluation.py:67: UserWarning: Evaluation environment is not wrapped with a ``Monitor`` wrapper. This may result in reporting modified episode lengths and rewards, if other wrappers happen to modify these. Consider wrapping environment first with ``Monitor`` wrapper.
+  warnings.warn(
+Error executing job with overrides: []
+Traceback (most recent call last):
+  File "/Users/base_camp/Developer/Robotics/RLFoundations/scripts/train.py", line 139, in train
+    model.learn(
+  File "/opt/homebrew/Caskroom/miniconda/base/envs/robotics-env/lib/python3.10/site-packages/stable_baselines3/sac/sac.py", line 307, in learn
+    return super().learn(
+  File "/opt/homebrew/Caskroom/miniconda/base/envs/robotics-env/lib/python3.10/site-packages/stable_baselines3/common/off_policy_algorithm.py", line 328, in learn
+    rollout = self.collect_rollouts(
+  File "/opt/homebrew/Caskroom/miniconda/base/envs/robotics-env/lib/python3.10/site-packages/stable_baselines3/common/off_policy_algorithm.py", line 568, in collect_rollouts
+    if not callback.on_step():
+  File "/opt/homebrew/Caskroom/miniconda/base/envs/robotics-env/lib/python3.10/site-packages/stable_baselines3/common/callbacks.py", line 114, in on_step
+    return self._on_step()
+  File "/opt/homebrew/Caskroom/miniconda/base/envs/robotics-env/lib/python3.10/site-packages/src/common/callbacks.py", line 40, in _on_step
+    with open(self.metrics_path, "w") as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/base_camp/Developer/Robotics/RLFoundations/models/sac/logs/metrics.json'
+
+Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.
+/Users/base_camp/Developer/Robotics/RLFoundations/scripts/train.py:23: UserWarning: 
+The version_base parameter is not specified.
+Please specify a compatability version level, or None.
+Will assume defaults for version 1.1
+  @hydra.main(config_path="../conf", config_name="config")
+/opt/homebrew/Caskroom/miniconda/base/envs/robotics-env/lib/python3.10/site-packages/hydra/_internal/hydra.py:119: UserWarning: Future Hydra versions will no longer change working directory at job runtime by default.
+See https://hydra.cc/docs/1.2/upgrades/1.1_to_1.2/changes_to_job_working_dir/ for more information.
+  ret = run_job(
+/opt/homebrew/Caskroom/miniconda/base/envs/robotics-env/lib/python3.10/site-packages/gymnasium/wrappers/rendering.py:283: UserWarning: [33mWARN: Overwriting existing videos at /Users/base_camp/Developer/Robotics/RLFoundations/models/sac/videos folder (try specifying a different `video_folder` for the `RecordVideo` wrapper if this is not desired)[0m
+  logger.warn(
+/opt/homebrew/Caskroom/miniconda/base/envs/robotics-env/lib/python3.10/site-packages/stable_baselines3/common/evaluation.py:67: UserWarning: Evaluation environment is not wrapped with a ``Monitor`` wrapper. This may result in reporting modified episode lengths and rewards, if other wrappers happen to modify these. Consider wrapping environment first with ``Monitor`` wrapper.
+  warnings.warn(
+
+Step 10000
+Mean reward: -50.00 ± 0.00
+
+Step 20000
+Mean reward: -50.00 ± 0.00
+
+Step 30000
+Mean reward: -50.00 ± 0.00
+
+Step 40000
+Mean reward: -50.00 ± 0.00
+
+Step 50000
+Mean reward: -50.00 ± 0.00
+
+Step 60000
+Mean reward: -50.00 ± 0.00
+
+Step 70000
+Mean reward: -50.00 ± 0.00
+
+Step 80000
+Mean reward: -50.00 ± 0.00
+
+Step 90000
+Mean reward: -50.00 ± 0.00
+
+Step 100000
+Mean reward: -50.00 ± 0.00
+
+Step 110000
+Mean reward: -50.00 ± 0.00
+
+Step 120000
+Mean reward: -50.00 ± 0.00
+
+Step 130000
+Mean reward: -50.00 ± 0.00
+
+Step 140000
+Mean reward: -50.00 ± 0.00
+
+Step 150000
+Mean reward: -50.00 ± 0.00
+
+Step 160000
+Mean reward: -50.00 ± 0.00
+
+Step 170000
+Mean reward: -50.00 ± 0.00
+
+Step 180000
+Mean reward: -50.00 ± 0.00
+
+Step 190000
+Mean reward: -50.00 ± 0.00
+
+Step 200000
+Mean reward: -50.00 ± 0.00
+
+Step 210000
+Mean reward: -50.00 ± 0.00
+
+Step 220000
+Mean reward: -50.00 ± 0.00
+
+Step 230000
+Mean reward: -50.00 ± 0.00
+
+Step 240000
+Mean reward: -50.00 ± 0.00
+
+Step 250000
+Mean reward: -50.00 ± 0.00
+
+Step 260000
+Mean reward: -50.00 ± 0.00
+
+Step 270000
+Mean reward: -50.00 ± 0.00
+
+Step 280000
+Mean reward: -50.00 ± 0.00
+
+Step 290000
+Mean reward: -50.00 ± 0.00
+
+Step 300000
+Mean reward: -50.00 ± 0.00
+
+Step 310000
+Mean reward: -50.00 ± 0.00
+
+Step 320000
+Mean reward: -50.00 ± 0.00
+
+Step 330000
+Mean reward: -50.00 ± 0.00
+
+Step 340000
+Mean reward: -50.00 ± 0.00
+
+Step 350000
+Mean reward: -50.00 ± 0.00
+
+Step 360000
+Mean reward: -50.00 ± 0.00
+
+Step 370000
+Mean reward: -50.00 ± 0.00
+
+Step 380000
+Mean reward: -50.00 ± 0.00
+
+Step 390000
+Mean reward: -50.00 ± 0.00
+
+Step 400000
+Mean reward: -50.00 ± 0.00
+
+Step 410000
+Mean reward: -50.00 ± 0.00
+
+Step 420000
+Mean reward: -50.00 ± 0.00
+
+Step 430000
+Mean reward: -50.00 ± 0.00
+
+Step 440000
+Mean reward: -50.00 ± 0.00
+
+Step 450000
+Mean reward: -50.00 ± 0.00
+
+Step 460000
+Mean reward: -50.00 ± 0.00
+
+Step 470000
+Mean reward: -50.00 ± 0.00
+
+Step 480000
+Mean reward: -50.00 ± 0.00
+
+Step 490000
+Mean reward: -50.00 ± 0.00
+
+Step 500000
+Mean reward: -50.00 ± 0.00
+
+Step 510000
+Mean reward: -50.00 ± 0.00
+
+Step 520000
+Mean reward: -50.00 ± 0.00
+
+Step 530000
+Mean reward: -50.00 ± 0.00
+
+Step 540000
+Mean reward: -50.00 ± 0.00
+
+Step 550000
+Mean reward: -50.00 ± 0.00
+
+Step 560000
+Mean reward: -50.00 ± 0.00
+
+Step 570000
+Mean reward: -50.00 ± 0.00
+
+Step 580000
+Mean reward: -50.00 ± 0.00
+
+Step 590000
+Mean reward: -50.00 ± 0.00
+
+Step 600000
+Mean reward: -50.00 ± 0.00
+
+Step 610000
+Mean reward: -50.00 ± 0.00
+
+Step 620000
+Mean reward: -50.00 ± 0.00
+
+Step 630000
+Mean reward: -50.00 ± 0.00
+
+Step 640000
+Mean reward: -50.00 ± 0.00
+
+Step 650000
+Mean reward: -50.00 ± 0.00
+
+Step 660000
+Mean reward: -50.00 ± 0.00
+
+Step 670000
+Mean reward: -50.00 ± 0.00
+
+Step 680000
+Mean reward: -50.00 ± 0.00
+
+Step 690000
+Mean reward: -50.00 ± 0.00
+
+Step 700000
+Mean reward: -50.00 ± 0.00
+
+Step 710000
+Mean reward: -50.00 ± 0.00
+
+Step 720000
+Mean reward: -50.00 ± 0.00
+
+Step 730000
+Mean reward: -50.00 ± 0.00
+
+Step 740000
+Mean reward: -50.00 ± 0.00
+
+Step 750000
+Mean reward: -50.00 ± 0.00
+
+Step 760000
+Mean reward: -50.00 ± 0.00
+
+Step 770000
+Mean reward: -50.00 ± 0.00
+
+Step 780000
+Mean reward: -50.00 ± 0.00
+
+Step 790000
+Mean reward: -50.00 ± 0.00
+
+Step 800000
+Mean reward: -50.00 ± 0.00
+
+Step 810000
+Mean reward: -50.00 ± 0.00
+
+Step 820000
+Mean reward: -50.00 ± 0.00
+
+Step 830000
+Mean reward: -50.00 ± 0.00
+
+Step 840000
+Mean reward: -50.00 ± 0.00
+
+Step 850000
+Mean reward: -50.00 ± 0.00
+
+Step 860000
+Mean reward: -50.00 ± 0.00
+
+Step 870000
+Mean reward: -50.00 ± 0.00
+
+Step 880000
+Mean reward: -50.00 ± 0.00
+
+Step 890000
+Mean reward: -50.00 ± 0.00
+
+Step 900000
+Mean reward: -50.00 ± 0.00
+
+Step 910000
+Mean reward: -50.00 ± 0.00
+
+Step 920000
+Mean reward: -50.00 ± 0.00
+
+Step 930000
+Mean reward: -50.00 ± 0.00
+
+Step 940000
+Mean reward: -50.00 ± 0.00
+
+Step 950000
+Mean reward: -50.00 ± 0.00
+
+Step 960000
+Mean reward: -50.00 ± 0.00
+
+Step 970000
+Mean reward: -50.00 ± 0.00
+
+Step 980000
+Mean reward: -50.00 ± 0.00
+
+Step 990000
+Mean reward: -50.00 ± 0.00
+
+Step 1000000
+Mean reward: -50.00 ± 0.00
+Error executing job with overrides: []
+Traceback (most recent call last):
+  File "/Users/base_camp/Developer/Robotics/RLFoundations/scripts/train.py", line 145, in train
+    model.save(f"{cfg.checkpoint.save_path}/final_model")
+omegaconf.errors.ConfigAttributeError: Key 'checkpoint' is not in struct
+    full_key: checkpoint
+    object_type=dict
+
+Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.

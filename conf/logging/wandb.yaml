@@ -1,0 +1,10 @@
+defaults:
+  - default
+  - _self_
+
+wandb:
+  enabled: true
+  project: "RLFoundations"
+  group: ${algo}
+  tags: ["${env.name}", "${type}"]
+  name: "${env.name}_${algo}_${now:%Y-%m-%d_%H-%M-%S}"
