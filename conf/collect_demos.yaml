@@ -1,0 +1,13 @@
+# conf/config.yaml
+defaults:
+  - common/paths@paths
+  - common/logging@logging
+  - common/training@training
+  - common/evaluation@evaluation
+  - env: fetch_pick
+  - agent: drl/sac
+  - _self_
+
+version_base: "1.3"
+experiment_name: ${agent.algo}_${env.name}
+type: ${agent.drl.type}

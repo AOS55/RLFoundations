@@ -1,141 +1,104 @@
 import hydra
 from omegaconf import DictConfig
-import gymnasium as gym
+from pathlib import Path
+import sys
 import minari
 import numpy as np
 from datetime import datetime
-import scipy.linalg
-import control
-from stable_baselines3 import SAC, TD3
-from pathlib import Path
 
-def get_mpc_action(state, target, dt=0.05, horizon=10):
-    """Simple MPC controller for FetchPickAndPlace"""
-    # Simplified linear dynamics for the end effector
-    A = np.eye(3)  # Position only model
-    B = np.eye(3) * dt  # Direct velocity control
+# Add project root to python path
+project_root = Path(__file__).parent.parent
+sys.path.append(str(project_root))
 
-    # Cost matrices
-    Q = np.eye(3)  # State cost
-    R = np.eye(3) * 0.1  # Control cost
+from src.common import DRLTrainer
 
-    # Terminal cost
-    P = scipy.linalg.solve_discrete_are(A, B, Q, R)
+@hydra.main(config_path="../conf", config_name="collect_demos", version_base="1.3")
+def collect_demos(cfg: DictConfig):
+    """Collect demonstrations from a trained model"""
+    trainer = DRLTrainer(cfg)
+    
+    try:
+        # Load the best model
+        model_path = Path(cfg.paths.model_dir) / "best_model.zip"
+        if not model_path.exists():
+            raise FileNotFoundError(f"Model not found at {model_path}")
 
-    # Current error
-    error = state['achieved_goal'] - target
+        print(f"\nLoading model from: {model_path}")
+        print(f"trainer.env: {trainer.env}")
+        print(f"Current model parameters: {trainer.model.get_parameters()}")
+        trainer.model.load(model_path)
+        print(f"Model loaded successfully")
 
-    # Solve finite horizon LQR
-    K, _, _ = control.dlqr(A, B, Q, R)
+        # Collect demonstrations
+        demonstrations = []
+        total_reward = 0
+        n_episodes = cfg.demos.n_episodes
 
-    # Compute control action
-    u = -K @ error
+        print(f"\nCollecting {n_episodes} demonstrations...")
+        
+        for episode in range(n_episodes):
+            obs, _ = trainer.eval_env.reset()
+            done = False
+            episode_reward = 0
+            episode_data = {
+                "observations": [],
+                "actions": [],
+                "rewards": [],
+                "terminals": []
+            }
 
-    # Clip actions to environment limits
-    u = np.clip(u, -1.0, 1.0)
+            while not done:
+                action = trainer.model.predict(obs, deterministic=True)[0]
+                next_obs, reward, terminated, truncated, info = trainer.eval_env.step(action)
+                
+                # Store transition
+                episode_data["observations"].append(obs)
+                episode_data["actions"].append(action)
+                episode_data["rewards"].append(reward)
+                episode_data["terminals"].append(terminated)
+                
+                obs = next_obs
+                episode_reward += reward
+                done = terminated or truncated
 
-    # Add gripper action (open/close based on distance to object)
-    dist_to_object = np.linalg.norm(state['achieved_goal'] - state['observation'][:3])
-    gripper_action = -1.0 if dist_to_object < 0.05 else 1.0
+            total_reward += episode_reward
+            demonstrations.append(episode_data)
+            
+            if (episode + 1) % 10 == 0:
+                print(f"Collected {episode + 1}/{n_episodes} episodes. " 
+                      f"Average reward: {total_reward / (episode + 1):.2f}")
 
-    return np.concatenate([u, [gripper_action]])
+        # Create dataset name with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        dataset_name = f"{cfg.env.name}_{cfg.algo}_{timestamp}"
+        
+        # Save demonstrations using minari
+        dataset = minari.DatasetBuilder(
+            dataset_id=dataset_name,
+            algorithm_name=cfg.algo,
+            environment_name=cfg.env.name,
+            data=demonstrations
+        )
+        
+        # Save and create symlink to latest
+        dataset_path = Path(cfg.paths.demos_dir) / dataset_name
+        dataset.save(str(dataset_path))
+        
+        latest_link = Path(cfg.paths.demos_dir) / "latest"
+        if latest_link.exists():
+            latest_link.unlink()
+        latest_link.symlink_to(dataset_path)
 
-def load_drl_agent(cfg):
-    """Load a trained DRL agent"""
-    model_path = Path(cfg.demo.model_path)
-    if not model_path.exists():
-        raise ValueError(f"Model not found at {model_path}")
+        print(f"\nDemonstrations saved to: {dataset_path}")
+        print(f"Created symlink: {latest_link} -> {dataset_path}")
+        print(f"Total episodes: {n_episodes}")
+        print(f"Average reward: {total_reward / n_episodes:.2f}")
 
-    if cfg.demo.algo == "sac":
-        return SAC.load(model_path)
-    elif cfg.demo.algo == "td3":
-        return TD3.load(model_path)
-    else:
-        raise ValueError(f"Unsupported algorithm: {cfg.demo.algo}")
-
-@hydra.main(config_path="../conf", config_name="config")
-def collect_demonstrations(cfg: DictConfig):
-    env = gym.make(cfg.env.name)
-
-    # Load DRL agent if specified
-    drl_agent = None
-    if cfg.demo.source == "drl":
-        drl_agent = load_drl_agent(cfg)
-
-    # Generate unique dataset name
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    dataset_name = f"fetch_pick_place_{cfg.demo.source}_{timestamp}"
-
-    trajectories = []
-    episode_count = 0
-    total_success = 0
-
-    while episode_count < cfg.demo.num_episodes:
-        obs, info = env.reset()
-        terminated = truncated = False
-
-        observations = []
-        actions = []
-        rewards = []
-        terminations = []
-        truncations = []
-        infos = []
-
-        while not (terminated or truncated):
-            if cfg.demo.source == "drl":
-                # Use trained DRL agent
-                action, _ = drl_agent.predict(obs, deterministic=True)
-            elif cfg.demo.source == "mpc":
-                # Use MPC controller
-                target = info['desired_goal']
-                state = {
-                    'achieved_goal': obs['achieved_goal'],
-                    'observation': obs['observation'],
-                    'desired_goal': target
-                }
-                action = get_mpc_action(state, target)
-
-            next_obs, reward, terminated, truncated, info = env.step(action)
-
-            observations.append(obs)
-            actions.append(action)
-            rewards.append(reward)
-            terminations.append(terminated)
-            truncations.append(truncated)
-            infos.append(info)
-
-            obs = next_obs
-
-        # Track success rate
-        if info.get('is_success', 0.0) > 0:
-            total_success += 1
-
-        trajectories.append({
-            "observations": np.array(observations),
-            "actions": np.array(actions),
-            "rewards": np.array(rewards),
-            "terminations": np.array(terminations),
-            "truncations": np.array(truncations),
-            "infos": infos
-        })
-
-        episode_count += 1
-        success_rate = (total_success / episode_count) * 100
-        print(f"Episode {episode_count}/{cfg.demo.num_episodes} - Success Rate: {success_rate:.2f}%")
-
-    # Create Minari dataset
-    minari.create_dataset_from_sequences(
-        dataset_name=dataset_name,
-        environment_name=cfg.env.name,
-        sequences=trajectories,
-        algorithm_name=f"{cfg.demo.source}_{cfg.demo.algo if cfg.demo.source == 'drl' else 'mpc'}",
-        author=cfg.demo.author,
-        code_permalink="https://github.com/yourusername/fetch_pick_and_place",
-    )
-
-    print(f"\nCreated Minari dataset: {dataset_name}")
-    print(f"Final Success Rate: {success_rate:.2f}%")
-    return dataset_name
+    except Exception as e:
+        print(f"\nDemo collection failed with error: {str(e)}")
+        raise
+    finally:
+        trainer.cleanup()
 
 if __name__ == "__main__":
-    collect_demonstrations()
+    collect_demos()

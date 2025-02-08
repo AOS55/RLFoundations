@@ -13,7 +13,8 @@ src/agents/mpc/dynamics.py
 src/agents/mpc/lqr.py
 src/agents/mpc/mpc.py
 src/common/__init__.py
+src/common/base_trainer.py
 src/common/callbacks.py
+src/common/drl_trainer.py
+src/common/il_trainer.py
 src/common/utils.py
-src/envs/__init__.py
-src/envs/wrappers.py

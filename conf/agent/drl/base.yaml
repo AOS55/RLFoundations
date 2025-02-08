@@ -1,0 +1,23 @@
+type: "drl"
+policy: "MultiInputPolicy"
+
+buffer:
+  size: 1000000
+  learning_starts: 100000
+
+training:
+  gradient_steps: 1
+  train_freq: 1
+  tau: 0.005
+  gamma: 0.99
+
+her:
+  enabled: true
+  n_sampled_goal: 32
+  goal_selection_strategy: "future"
+  
+network:
+  activation: "relu"
+  net_arch:
+    pi: [256, 256]
+    qf: [256, 256]

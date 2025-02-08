@@ -1,9 +1,19 @@
-type: "il"
+defaults:
+  - il/base
+  - _self_
+
 algo: "bc"
-params:
+_target_: imitation.algorithms.bc.BC
+
+bc:
   learning_rate: 1e-3
+  batch_size: ${training.batch_size}
+  n_epochs: ${training.n_epochs}
   policy_kwargs:
-    net_arch: [256, 256]
-batch_size: 32
-n_epochs: 100
-dataset_name: "fetch_pick_place_human_latest"
+    net_arch: ${network.net_arch}
+    activation_fn: ${network.activation}
+
+dataset:
+  name: null
+  n_episodes: ${demos.n_episodes}
+  path: ${demos.path}

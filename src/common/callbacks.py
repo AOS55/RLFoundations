@@ -49,7 +49,28 @@ class SimpleEvalCallback(BaseCallback):
 
 class EnhancedEvalCallback(BaseCallback):
     """
-    Callback for evaluating and logging agent performance with optional WandB support.
+    A callback for evaluating and logging agent performance during reinforcement learning training.
+
+    This callback periodically evaluates the agent using a separate evaluation environment, logs the results,
+    and optionally saves model checkpoints. It supports logging to Weights & Biases (WandB) for experiment tracking.
+
+    Features:
+    - Periodically evaluates the model based on a given frequency (`eval_freq`).
+    - Logs evaluation metrics such as mean reward, episode length, and success rate.
+    - Saves model checkpoints at specified intervals (`save_freq`).
+    - Optionally logs training statistics to Weights & Biases (if `use_wandb=True`).
+    - Saves evaluation metrics to a JSON file for analysis.
+
+    Args:
+        eval_env (VecEnv): The environment used for evaluation.
+        eval_freq (int): How often (in training steps) the agent is evaluated.
+        n_eval_episodes (int): Number of evaluation episodes per evaluation cycle.
+        hydra_output_dir (str): The base directory for storing evaluation results and logs.
+        models_dir (str): The directory where model checkpoints are saved.
+        use_wandb (bool, optional): If True, logs evaluation results to Weights & Biases. Default is False.
+        save_freq (Optional[int], optional): How often (in training steps) to save a model checkpoint. Default is None (disabled).
+        save_replay_buffer (bool, optional): If True, saves the replay buffer alongside model checkpoints. Default is False.
+        verbose (int, optional): Verbosity level (0 = silent, 1 = minimal output, 2 = detailed output). Default is 1.d
     """
     def __init__(
         self,
@@ -93,11 +114,12 @@ class EnhancedEvalCallback(BaseCallback):
 
     def save_checkpoint(self, suffix: str = "") -> None:
         """Save model checkpoint and optionally replay buffer."""
-        checkpoint_path = self.models_dir / f"model_step_{self.n_calls}{suffix}"
-        self.model.save(checkpoint_path)
-        if self.save_replay_buffer and hasattr(self.model, "replay_buffer"):
-            replay_buffer_path = self.models_dir / f"replay_buffer_step_{self.n_calls}{suffix}"
-            np.save(replay_buffer_path, self.model.replay_buffer)
+        if suffix == "_best":  # Only save for best model
+            checkpoint_path = self.models_dir / "best_model"
+            self.model.save(checkpoint_path)
+            if self.save_replay_buffer and hasattr(self.model, "replay_buffer"):
+                replay_buffer_path = self.models_dir / "replay_buffer"
+                np.save(replay_buffer_path, self.model.replay_buffer)
 
     def evaluate_policy(self) -> Dict[str, float]:
         """Evaluate the current policy and return metrics."""
@@ -113,7 +135,7 @@ class EnhancedEvalCallback(BaseCallback):
         )
 
         metrics = {
-            "step": self.n_calls,
+            "step": self.num_timesteps,
             "mean_reward": float(np.mean(rewards)),
             "std_reward": float(np.std(rewards)),
             "mean_length": float(np.mean(lengths)),
@@ -127,9 +149,6 @@ class EnhancedEvalCallback(BaseCallback):
 
     def _on_step(self) -> bool:
         """Execute callback steps including evaluation, logging, and checkpointing."""
-        # Regular model saving if enabled
-        if self.save_freq is not None and self.n_calls % self.save_freq == 0:
-            self.save_checkpoint()
         
         if self.use_wandb:
             infos = self.locals["infos"][0]
@@ -156,14 +175,14 @@ class EnhancedEvalCallback(BaseCallback):
                 
                 
                 # Log histograms periodically
-                if self.n_calls % (self.eval_freq * 5) == 0:
+                if self.num_timesteps % (self.eval_freq * 5) == 0:
                     wandb.log({
                         "distributions/actions": wandb.Histogram(self.model.replay_buffer.actions),
                         "distributions/rewards": wandb.Histogram(self.model.replay_buffer.rewards)
                     }, step=self.n_calls)
 
         # Evaluation
-        if self.n_calls % self.eval_freq == 0:
+        if self.num_timesteps % self.eval_freq == 0:
             metrics = self.evaluate_policy()
             self.metrics.append(metrics)
 
@@ -173,9 +192,9 @@ class EnhancedEvalCallback(BaseCallback):
 
             # Log to console
             if self.verbose > 0:
-                print(f"\nEvaluation at step {self.n_calls}:")
+                print(f"\nEvaluation at step {self.num_timesteps}:")
                 print(f"Mean reward: {metrics['mean_reward']:.2f} ± {metrics['std_reward']:.2f}")
-                print(f"Success rate: {metrics['success_rate']:.2%}")
+                # print(f"Success rate: {metrics['success_rate']:.2%}")
 
             # Log to WandB if enabled
             if self.use_wandb:
@@ -203,7 +222,7 @@ class EnhancedEvalCallback(BaseCallback):
 
         # Save final metrics summary
         summary = {
-            "total_timesteps": self.n_calls,
+            "total_timesteps": self.num_timesteps,
             "best_mean_reward": float(self.best_mean_reward),
             "final_eval": self.evaluate_policy()
         }

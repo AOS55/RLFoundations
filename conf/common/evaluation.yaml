@@ -1,0 +1,5 @@
+deterministic: true   # Ensures the policy uses deterministic actions (i.e., no exploration noise).
+record_video: true    # Enables video recording of agent behavior during evaluation.
+n_episodes: 10       # Number of evaluation episodes to average results over.
+video_freq: 100        # Frequency at which evaluation videos are recorded (e.g., every 10 episodes).
+save_metrics: true    # Saves evaluation metrics (e.g., mean reward, success rate) to a file for analysis.

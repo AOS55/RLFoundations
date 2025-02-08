@@ -3,7 +3,7 @@ Name: rlfoundations
 Version: 0.1.0
 Requires-Dist: gymnasium
 Requires-Dist: stable-baselines3
-Requires-Dist: imitation
+Requires-Dist: imitation@ git+https://github.com/AOS55/imitation.git@master
 Requires-Dist: mujoco
 Requires-Dist: gymnasium-robotics
 Requires-Dist: hydra-core

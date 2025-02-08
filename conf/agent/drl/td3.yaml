@@ -1,16 +1,23 @@
+defaults:
+  - drl/base
+  - _self_
+
+algo: "td3"
 _target_: stable_baselines3.TD3
-policy: "MultiInputPolicy"
-learning_rate: 1e-3
-buffer_size: 1000000
-learning_starts: 100
-batch_size: 100
-tau: 0.005
-gamma: 0.99
-train_freq: 1
-policy_delay: 2
-target_policy_noise: 0.2
-target_noise_clip: 0.5
-policy_kwargs:
-  net_arch:
-    pi: [400, 300]
-    qf: [400, 300]
+
+# TD3 specific parameters
+td3:
+  learning_rate: 1e-3
+  batch_size: 100
+  buffer_size: ${buffer.size}
+  learning_starts: ${buffer.learning_starts}
+  train_freq: 1
+  gradient_steps: 1
+  policy_delay: 2
+  target_policy_noise: 0.2
+  target_noise_clip: 0.5
+  tau: ${training.tau}
+  gamma: ${training.gamma}
+  policy_kwargs:
+    net_arch: ${network.net_arch}
+    activation_fn: ${network.activation}

@@ -1,176 +1,54 @@
 import hydra
-import wandb
-from wandb.integration.sb3 import WandbCallback
-from omegaconf import DictConfig, OmegaConf
-import gymnasium_robotics
-import gymnasium as gym
-import numpy as np
-from stable_baselines3 import SAC, TD3, HerReplayBuffer
-from stable_baselines3.common.evaluation import evaluate_policy
-from stable_baselines3.common.callbacks import EvalCallback
+from omegaconf import DictConfig
+import sys
 from pathlib import Path
-from src.common import SimpleEvalCallback, EnhancedEvalCallback
-from imitation.algorithms import bc
-from imitation.data import rollout
-from imitation.data.wrappers import RolloutInfoWrapper
-import minari
-from stable_baselines3.common.vec_env import DummyVecEnv
-from gymnasium.wrappers import RecordVideo
 
-def make_env(env_name, render_mode=None):
-    def _init():
-        env = gym.make(env_name, render_mode=render_mode)
-        return RolloutInfoWrapper(env)
-    return _init
+# Add project root to python path
+project_root = Path(__file__).parent.parent
+sys.path.append(str(project_root))
 
-@hydra.main(config_path="../conf", config_name="config", version_base="1.1")
+from src.common import DRLTrainer, ILTrainer
+
+@hydra.main(config_path="../conf", config_name="train", version_base="1.3")
 def train(cfg: DictConfig):
-    # Create vectorized environment
-    env = DummyVecEnv([make_env(cfg.env.name) for _ in range(cfg.experiment.num_envs)])
+    """Main training script with automatic trainer selection"""
+    # Get agent type from nested config
+    agent_type = cfg.agent.drl.type if "drl" in cfg.agent else cfg.agent.il.type
+    print(f"cfg: {cfg}") 
+    # Select appropriate trainer based on agent type
+    trainer_class = {
+        "drl": DRLTrainer,
+        "il": ILTrainer
+    }.get(agent_type)
 
-    def make_eval_env(env_name):
+    if trainer_class is None:
+        raise ValueError(f"Unknown training type: {agent_type}")
 
-        def _init():
-            env = gym.make(env_name, render_mode="rgb_array")
-            env = RecordVideo(
-                env,
-                video_folder=str(Path(cfg.logging.output.video_dir)),
-                episode_trigger=lambda x: x % cfg.evaluation.get("record_freq", 50000) == 0
-            )
-            return RolloutInfoWrapper(env)
-        return _init
+    # Print training information using correct config paths
+    print(f"\nStarting {agent_type.upper()} training with {cfg.agent.algo} algorithm")
+    print(f"Environment: {cfg.env.name}")
+    print(f"Model will be saved to: {cfg.paths.model_dir}")
+    print(f"Outputs will be saved to: {cfg.paths.base_output_dir}")
 
-    eval_env = DummyVecEnv([make_eval_env(cfg.env.name)])
+    # Initialize and run trainer
+    trainer = trainer_class(cfg)
+    try:
+        model_path = trainer.train()
+        print(f"\nTraining completed. Best model saved to: {model_path}")
 
-    if cfg.logging.wandb:
-        wandb_config = OmegaConf.to_container(cfg, resolve=True)
-        wandb.init(
-            project=cfg.logging.wandb.project,
-            entity=cfg.logging.wandb.entity,
-            group=cfg.logging.wandb.group,
-            name=cfg.logging.wandb.name,
-            config=wandb_config
-        )
+        if cfg.evaluation.save_metrics:
+            # Run final evaluation
+            mean_reward, std_reward = trainer.evaluate()
+            print(f"\nFinal evaluation:")
+            print(f"Mean reward: {mean_reward:.2f} ± {std_reward:.2f}")
 
-    # Set random seed
-    rng = np.random.default_rng(cfg.experiment.seed)
-
-    if cfg.type == "il":
-        # Load demonstrations from Minari
-        dataset = minari.load_dataset(cfg.agent.demonstrations_path)
-
-        # Convert Minari dataset to transitions
-        trajectories = []
-        for i in range(len(dataset)):
-            traj = {
-                "obs": dataset[i]["observations"],
-                "acts": dataset[i]["actions"],
-                "infos": dataset[i]["infos"],
-                "terminal": dataset[i]["terminations"][-1]
-            }
-            trajectories.append(traj)
-        transitions = rollout.flatten_trajectories(trajectories)
-
-        # Create BC trainer
-        bc_trainer = hydra.utils.instantiate(
-            cfg.agent,
-            observation_space=env.observation_space,
-            action_space=env.action_space,
-            demonstrations=transitions,
-        )
-
-        # Evaluate untrained policy
-        print("Evaluating untrained policy...")
-        reward_before, _ = evaluate_policy(
-            bc_trainer.policy,
-            eval_env,
-            n_eval_episodes=cfg.evaluation.n_episodes,
-            deterministic=cfg.evaluation.deterministic
-        )
-        print(f"Reward before training: {reward_before}")
-
-        # Train the policy
-        print("Training policy using Behavior Cloning...")
-        bc_trainer.train(
-            n_epochs=cfg.training.total_timesteps,
-            progress_bar=True
-        )
-
-        # Save the trained policy
-        bc_trainer.save_policy(f"{cfg.checkpoint.save_path}/final_policy")
-
-        # Evaluate trained policy
-        print("Evaluating trained policy...")
-        reward_after, _ = evaluate_policy(
-            bc_trainer.policy,
-            eval_env,
-            n_eval_episodes=cfg.evaluation.n_episodes,
-            deterministic=cfg.evaluation.deterministic
-        )
-        print(f"Reward after training: {reward_after}")
-
-    else:  # DRL training
-
-        # Check if HER is enabled
-        if cfg.her.enabled:
-            
-            env = DummyVecEnv([lambda env_name=cfg.env.name: gym.make(env_name) for _ in range(cfg.experiment.num_envs)])
-            model = SAC(
-                policy="MultiInputPolicy",
-                env=env,
-                replay_buffer_class=HerReplayBuffer,
-                replay_buffer_kwargs={
-                    "n_sampled_goal": cfg.her.n_sampled_goal,
-                    "goal_selection_strategy": cfg.her.goal_selection_strategy,
-                },
-                verbose=1 if cfg.logging.wandb else 0,
-            ) 
-            assert hasattr(env.envs[0].unwrapped, "compute_reward"), "HER requires the environment to have `compute_reward()`!"
-
-        else:
-            model = SAC(
-                policy="MultiInputPolicy",
-                env=env,
-                verbose=1 if cfg.logging.wandb else 0,
-            )
-
-        # Create callback
-        eval_callback = EnhancedEvalCallback(
-            eval_env=eval_env,
-            eval_freq=cfg.training.eval_freq,
-            n_eval_episodes=cfg.training.n_eval_episodes,
-            hydra_output_dir=str(Path.cwd()),
-            models_dir=str(Path(cfg.logging.checkpoint.save_path)),
-            use_wandb=cfg.logging.wandb.enabled,
-            save_freq=cfg.logging.checkpoint.save_freq,
-            save_replay_buffer=cfg.logging.checkpoint.save_replay_buffer
-        )
-        
-        wandb_callback = WandbCallback(
-            model_save_path=str(Path(cfg.logging.checkpoint.save_path)),
-            verbose=2,
-        )
-
-        # Train the agent
-        model.learn(
-            total_timesteps=cfg.training.total_timesteps,
-            callback=[wandb_callback, eval_callback] if cfg.logging.wandb.enabled else eval_callback
-        )
-
-        # Save the final model
-        model.save(f"{cfg.checkpoint.save_path}/final_model")
-
-        # Final evaluation
-        reward, std_reward = evaluate_policy(
-            model,
-            eval_env,
-            n_eval_episodes=cfg.evaluation.n_episodes,
-            deterministic=cfg.evaluation.deterministic
-        )
-        print(f"Final evaluation: {reward:.2f} ± {std_reward:.2f}")
-
-        if cfg.logging.wandb.enabled:
-            wandb.finish()
+    except KeyboardInterrupt:
+        print("\nTraining interrupted by user.")
+    except Exception as e:
+        print(f"\nTraining failed with error: {str(e)}")
+        raise
+    finally:
+        trainer.cleanup()
 
 if __name__ == "__main__":
     train()
