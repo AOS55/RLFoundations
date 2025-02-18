@@ -8,7 +8,7 @@ python scripts/robot_rollout.py
 ```
 
 <video width="600" controls>
-  <source src="https://github.com/your-username/your-repo/raw/main/path/to/video.mp4" type="video/mp4">
+  <source src="https://github.com/AOS55/RLFoundations/blob/assets/PickAndPlaceDemo.mp4" type="video/mp4">
 </video>
 
 ## Features
