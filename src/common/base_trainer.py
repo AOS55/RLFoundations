@@ -23,21 +23,21 @@ class BaseTrainer:
             if isinstance(path_value, str):
                 Path(os.path.join(orig_cwd, path_value)).mkdir(parents=True, exist_ok=True)
 
-    def make_env(self, render_mode="rgb_array", record_video=False):
+    def make_env(self, render_mode=None, record_video=False):
         """Creates a wrapped environment for training or evaluation"""
-        print(f'env name: {self.cfg.env}')
         def _init():
             env = gym.make(
                 self.cfg.env.name,
-                render_mode=render_mode,
-                max_episode_steps=self.cfg.env.max_episode_steps, 
+                render_mode=render_mode or self.cfg.env.get('render_mode', 'rgb_array'),
+                max_episode_steps=self.cfg.env.max_episode_steps,
             )
 
             # Apply configured wrappers
             if self.cfg.env.wrappers.time_limit:
                 env = TimeLimit(env, max_episode_steps=self.cfg.env.max_episode_steps)
 
-            if record_video:
+            # Only add RecordVideo wrapper if we're not in human render mode
+            if record_video and render_mode != 'human':
                 env = RecordVideo(
                     env,
                     video_folder=str(self.cfg.paths.video_dir),
@@ -55,7 +55,7 @@ class BaseTrainer:
         )
 
         # Single evaluation environment with video recording if enabled
-        render_mode = "rgb_array"
+        render_mode = self.cfg.env.get('render_mode', 'rgb_array')
         self.eval_env = DummyVecEnv([
             self.make_env(
                 render_mode=render_mode,
@@ -65,11 +65,11 @@ class BaseTrainer:
 
     def setup_wandb(self):
         """Initialize WandB if enabled"""
-        
+
         resolved_cfg = OmegaConf.to_container(self.cfg, resolve=True)
-        
+
         if self.cfg.logging.wandb.enabled:
-            os.environ["WANDB_DIR"] = str(Path(self.cfg.paths.base_output_dir)) 
+            os.environ["WANDB_DIR"] = str(Path(self.cfg.paths.base_output_dir))
             wandb.init(
                 project=self.cfg.logging.wandb.project,
                 entity=self.cfg.logging.wandb.entity,

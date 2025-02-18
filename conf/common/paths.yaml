@@ -3,6 +3,5 @@ base_output_dir: ${paths.root}/outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
 model_dir: ${paths.root}/models/${agent.algo}/${env.name}
 video_dir: ${paths.base_output_dir}/videos
 metrics_dir: ${paths.base_output_dir}/metrics
-demos_dir: ${paths.root}/demonstrations
 logs_dir: ${paths.base_output_dir}/logs
 tensorboard_dir: ${paths.base_output_dir}/tensorboard

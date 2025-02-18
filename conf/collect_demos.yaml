@@ -11,3 +11,9 @@ defaults:
 version_base: "1.3"
 experiment_name: ${agent.algo}_${env.name}
 type: ${agent.drl.type}
+
+demos:
+  n_episodes: 100000
+
+paths:
+  demos_dir: ${paths.root}/demonstrations

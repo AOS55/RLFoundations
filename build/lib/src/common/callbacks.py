@@ -194,7 +194,7 @@ class EnhancedEvalCallback(BaseCallback):
             if self.verbose > 0:
                 print(f"\nEvaluation at step {self.num_timesteps}:")
                 print(f"Mean reward: {metrics['mean_reward']:.2f} ± {metrics['std_reward']:.2f}")
-                print(f"Success rate: {metrics['success_rate']:.2%}")
+                # print(f"Success rate: {metrics['success_rate']:.2%}")
 
             # Log to WandB if enabled
             if self.use_wandb:

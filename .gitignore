@@ -43,6 +43,7 @@ models/
 outputs/
 demonstrations/
 rlfoundations.egg-info/
+downloaded_models/
 *.h5
 *.ckpt
 *.pkl
