@@ -2,7 +2,7 @@
 
 Welcome to RLFoundations! 👋 This repository is designed to help you get started with robotic learning without getting lost in implementation details. Whether you're a student, researcher, or robotics enthusiast, you'll find everything you need to start experimenting with fundamental robotic learning techniques.
 
-Run to get started:
+To get started run:
 ```bash
 python scripts/robot_rollout.py
 ```
