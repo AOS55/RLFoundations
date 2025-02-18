@@ -2,6 +2,8 @@
 
 Welcome to RLFoundations! This repository is designed to help you get started with robotic learning without getting lost in implementation details. Whether you're a student, researcher, or robotics enthusiast, you'll find everything you need to start experimenting with fundamental robotic learning techniques.
 
+The repository focuses on the [Fetch](https://robotics.farama.org/envs/fetch/) robotics environments using [StableBaselines3](https://stable-baselines3.readthedocs.io/en/master/) and [imitation](https://imitation.readthedocs.io/en/latest/) The Hydra configs used to run the various experiments can easily be edited to help you understand how each parameter effects the environment. 
+
 To get started run:
 ```bash
 python scripts/robot_rollout.py
