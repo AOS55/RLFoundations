@@ -6,10 +6,8 @@ Run to get started:
 ```bash
 python scripts/robot_rollout.py
 ```
+![Pick and Place Demo](https://github.com/AOS55/RLFoundations/raw/assets/PickAndPlaceDemo.mp4)
 
-<video width="600" controls>
-  <source src="https://github.com/AOS55/RLFoundations/blob/assets/PickAndPlaceDemo.mp4" type="video/mp4">
-</video>
 
 ## Features
 
