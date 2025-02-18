@@ -6,7 +6,7 @@ Run to get started:
 ```bash
 python scripts/robot_rollout.py
 ```
-![Pick and Place Demo](https://github.com/AOS55/RLFoundations/raw/assets/PickAndPlaceDemo.mp4)
+![Pick and Place Demo](https://github.com/AOS55/RLFoundations/blob/assets/PickAndPlaceDemo.gif)
 
 
 ## Features
