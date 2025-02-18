@@ -1,7 +1,0 @@
-total_timesteps: 25000000  # Total number of environment interaction steps before training stops.
-eval_freq: 10000          # Frequency (in steps) at which the model is evaluated.
-checkpoint_freq: 50000    # Frequency (in steps) at which model checkpoints are saved.
-max_episode_steps: 100    # Maximum number of steps per episode before termination.
-num_envs: 20              # Number of parallel environments used for training (higher = faster training, more variance).
-gradient_steps: 1         # Number of gradient update steps per training iteration.
-train_freq: 1             # Number of environment steps per training step (1 means train every step).

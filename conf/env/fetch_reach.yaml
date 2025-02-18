@@ -1,7 +1,0 @@
-defaults:
-  - base
-  - _self_
-
-name: FetchReach-v4
-max_episode_steps: ${training.max_episode_steps}
-reward_type: "sparse"
