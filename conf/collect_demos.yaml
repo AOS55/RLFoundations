@@ -13,7 +13,7 @@ experiment_name: ${agent.algo}_${env.name}
 type: ${agent.drl.type}
 
 demos:
-  n_episodes: 100000
+  n_episodes: 1000
 
 paths:
   demos_dir: ${paths.root}/demonstrations

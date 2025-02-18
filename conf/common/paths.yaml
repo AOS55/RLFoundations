@@ -5,3 +5,4 @@ video_dir: ${paths.base_output_dir}/videos
 metrics_dir: ${paths.base_output_dir}/metrics
 logs_dir: ${paths.base_output_dir}/logs
 tensorboard_dir: ${paths.base_output_dir}/tensorboard
+demos_dir: ${paths.root}/demonstrations

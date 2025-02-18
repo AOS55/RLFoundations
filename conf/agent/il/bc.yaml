@@ -6,14 +6,6 @@ algo: "bc"
 _target_: imitation.algorithms.bc.BC
 
 bc:
-  learning_rate: 1e-3
-  batch_size: ${training.batch_size}
-  n_epochs: ${training.n_epochs}
-  policy_kwargs:
-    net_arch: ${network.net_arch}
-    activation_fn: ${network.activation}
-
-dataset:
-  name: null
-  n_episodes: ${demos.n_episodes}
-  path: ${demos.path}
+  learning_rate: 0.0003
+  n_epochs: ${agent.il.training.n_epochs}
+  batch_size: ${agent.il.training.batch_size}

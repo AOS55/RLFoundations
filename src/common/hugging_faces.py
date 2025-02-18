@@ -140,35 +140,54 @@ class HFModelManager:
 def ensure_model_exists(cfg: DictConfig, local_path: Path) -> Path:
     """
     Ensure model exists locally, downloading from HF if necessary.
-
-    Args:
-        cfg: Configuration object
-        local_path: Local path where model should be
-
-    Returns:
-        Path: Path to the model file
     """
     if local_path.exists():
         print(f"Using local model from: {local_path}")
         return local_path
 
-    print(f"Local model not found. Attempting to download from Hugging Face...")
+    print(f"Local model not found at {local_path}. Attempting to download from Hugging Face...")
 
     # Setup HF model manager
     token = os.getenv("HF_TOKEN")
     repo_id = "AOS55/RLFoundations"
-    manager = setup_model_sharing(repo_id=repo_id, token=token)
 
-    # Download the model
+    # Create the directory structure if it doesn't exist
+    local_path.parent.mkdir(parents=True, exist_ok=True)
+
     try:
-        manager.pull_models(
-            output_dir=local_path.parent,
-            algorithm=cfg.agent.algo.lower(),
-            env=cfg.env.name
+        # Construct the remote path and local path
+        algo = cfg.agent.algo.lower()
+        env_name = cfg.env.name
+        filename = f"{algo}/{env_name}/best_model.zip"
+
+        # Download the file
+        downloaded_path = hf_hub_download(
+            repo_id=repo_id,
+            filename=filename,
+            token=token,
+            local_dir=local_path.parent,
+            local_dir_use_symlinks=False
         )
 
+        # Move the file to the correct location if needed
+        downloaded_path = Path(downloaded_path)
+        if downloaded_path != local_path:
+            # Create parent directories if they don't exist
+            local_path.parent.mkdir(parents=True, exist_ok=True)
+            # Move the file to the correct location
+            shutil.move(str(downloaded_path), str(local_path))
+
+            # Clean up any empty directories
+            current_dir = downloaded_path.parent
+            while current_dir != local_path.parent:
+                try:
+                    current_dir.rmdir()
+                    current_dir = current_dir.parent
+                except OSError:
+                    break  # Directory not empty or other error
+
         if local_path.exists():
-            print(f"Successfully downloaded model from Hugging Face")
+            print(f"Successfully downloaded model to: {local_path}")
             return local_path
         else:
             raise FileNotFoundError("Model was not found after download attempt")

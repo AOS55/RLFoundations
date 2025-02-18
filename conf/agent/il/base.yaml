@@ -5,6 +5,10 @@ network:
   activation: "relu"
   net_arch: [256, 256]
 
+policy_kwargs:
+  net_arch: ${agent.il.network.net_arch}
+  activation_fn: ${agent.il.network.activation}
+
 training:
   batch_size: 32
   n_epochs: 100
