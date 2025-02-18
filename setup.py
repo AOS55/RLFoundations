@@ -9,13 +9,14 @@ setup(
         "stable-baselines3",
         "imitation @ git+https://github.com/AOS55/imitation.git@master",
         "mujoco",
-        "gymnasium-robotics",
+        "gymnasium-robotics @ git+https://github.com/Farama-Foundation/Gymnasium-Robotics.git@main",
         "hydra-core",
         "omegaconf",
         "wandb",  # optional for logging
         "minari",
         "shimmy",
         "moviepy",
+        "huggingface_hub"
     ],
     extras_require={
         "dev": [  # Optional development dependencies
